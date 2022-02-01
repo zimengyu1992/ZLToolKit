@@ -479,6 +479,33 @@ bool Socket::bindUdpSock(uint16_t port, const string &local_ip, bool enable_reus
     return true;
 }
 
+bool Socket::bindMcastUdpSock(const std::string &mcast_ip,uint16_t port, const std::string &local_ip, bool enable_reuse)
+{
+    closeSock();
+
+#ifdef _WIN32
+	int fd = SockUtil::bindUdpSock(port, local_ip.data(), enable_reuse);
+    if (fd == -1) {
+        return false;
+    }
+#else
+    int fd = SockUtil::bindUdpSock(port, mcast_ip.data(), enable_reuse);
+    if (fd == -1) {
+        return false;
+    }
+#endif
+
+    SockUtil::joinMultiAddr(fd, mcast_ip.data(), local_ip.data());
+
+    auto sock = makeSock(fd, SockNum::Sock_UDP);
+    if (!attachEvent(sock, true)) {
+        return false;
+    }
+    LOCK_GUARD(_mtx_sock_fd);
+    _sock_fd = sock;
+    return true;
+}
+
 int Socket::onAccept(const SockFD::Ptr &sock, int event) noexcept {
     int fd;
     while (true) {

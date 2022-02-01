@@ -311,6 +311,16 @@ public:
      */
     virtual bool bindUdpSock(uint16_t port, const std::string &local_ip = "0.0.0.0", bool enable_reuse = true);
 
+    /**
+    * 创建udp多播套接字,用于udp多播接收
+    * 注意:udp多播发送使用bindUdpSock()
+    * @param mcast_ip 组播IP
+    * @param port     绑定的端口
+    * @param local_ip 绑定的网卡ip
+    * @return 是否成功
+    */
+    virtual bool bindMcastUdpSock(const std::string &mcast_ip, uint16_t port, const std::string &local_ip = "0.0.0.0", bool enable_reuse = true);
+
     ////////////设置事件回调////////////
 
     /**
